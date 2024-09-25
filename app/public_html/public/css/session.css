@@ -1,0 +1,7 @@
+table.table tr.info td {
+	font-weight:bold;
+}
+
+input.form-control {
+	max-width:none;
+}

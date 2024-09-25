@@ -1,0 +1,12 @@
+table.table th:nth-child(5) {
+	width:80px;
+}
+
+@media (max-width:767px) {
+	table.table th:nth-child(2),
+	table.table td:nth-child(2),
+	table.table th:nth-child(4),
+	table.table td:nth-child(4) {
+		display:none;
+	}
+}

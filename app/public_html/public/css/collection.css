@@ -1,0 +1,22 @@
+div.album {
+	width:350px;
+	float:left;
+	height:120px;
+}
+
+div.album div.image {
+	float:left;
+	margin-right:20px;
+	width:150px;
+	text-align:right;
+}
+
+div.album div.image img {
+	padding:1px;
+	border:1px solid #000000;
+	background-color:#ffffff;
+}
+
+div.album div.description {
+	margin-left:170px;
+}

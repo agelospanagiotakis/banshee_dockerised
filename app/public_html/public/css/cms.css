@@ -1,0 +1,27 @@
+div.panel ul {
+	list-style:none;
+	padding:0;
+}
+
+div.panel li {
+	display:inline-block;
+	width:100px;
+	text-align:center;
+	margin-top:15px;
+	margin-bottom:10px;
+	padding-left:20px;
+}
+
+div.panel img {
+	display:block;
+	margin:0 auto;
+	height:50px;
+}
+
+div.panel li a div {
+	font-size:12px;
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+	max-width:85px;
+}

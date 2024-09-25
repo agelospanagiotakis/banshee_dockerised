@@ -1,0 +1,28 @@
+span.currency {
+	margin-right:2px;
+}
+
+h2 {
+	margin-bottom:10px;
+	padding-bottom:5px;
+	border-bottom:1px solid #80a0e0;
+}
+
+h3 {
+	margin-top:0;
+}
+
+table.confirm td:nth-child(2) {
+	width:120px;
+	text-align:right;
+	padding-right:30px;
+}
+
+table.confirm td:nth-child(3) {
+	width:50px;
+	text-align:right;
+}
+
+table.confirm tfoot td {
+	font-weight:bold;
+}

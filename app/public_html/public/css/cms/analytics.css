@@ -1,0 +1,120 @@
+/* Graphs
+ */
+h2 {
+	border-bottom:1px solid #e0e0e0;
+}
+
+div.graph {
+	margin-bottom:20px;
+}
+
+div.graph table.bars {
+	width:100%;
+}
+
+div.graph table a > div {
+	margin-right:1px;
+	background-color:#f0f0f0;
+	position:relative;
+}
+
+div.graph table div > div {
+	position:absolute;
+	bottom:0;
+	width:100%;
+}
+
+div.graph div.weekend_no {
+	background-color:#ff0000;
+}
+
+div.graph div.weekend_yes {
+	background-color:#c00000;
+}
+
+div.graph div.row {
+	float:right;
+	width:100%;
+	margin:0;
+	padding-left:200px;
+	height:0;
+	position:relative;
+	top:-30px;
+}
+
+/* Deselect
+ */
+p.deselect {
+	position:relative;
+	top:-30px;
+	text-align:right;
+	height:0;
+}
+
+/* Tables
+ */
+div.list {
+	margin-bottom:20px;
+}
+
+div.list div.entry {
+	background-color:#f0f0f0;
+	border-bottom:1px solid #e0e0e0;
+	padding:1px 5px;
+	margin-bottom:1px;
+}
+
+/* Top pages
+ */
+div.pages {
+	font-size:12px;
+}
+
+/* Referers
+ */
+div.referers div.entry {
+	cursor:pointer;
+}
+
+div.referers div.referer {
+	display:none;
+}
+
+div.referers div.referer ul {
+	list-style:inside;
+	padding-left:10px;
+}
+
+div.referers div.referer ul li a {
+	display:inline-block;
+	max-width:670px;
+	height:18px;
+	overflow:hidden;
+	margin-bottom:-4px;
+}
+
+div.referers input[type=checkbox] {
+	float:right;
+	margin-right:2px;
+}
+
+div.referers input#delete_referers {
+	display:none;
+	float:right;
+	margin-top:10px;
+}
+
+div.graph div.row div:first-child {
+	min-width:100px;
+}
+
+@media (max-width:767px) {
+	div.graph div.column,
+	div.graph div.bar {
+		width:2.4px;
+	}
+	div.graph div.row div:nth-child(2),
+	div.graph div.row div:nth-child(3) {
+		display:none;
+	}
+}

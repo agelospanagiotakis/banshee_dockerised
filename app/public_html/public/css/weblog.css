@@ -1,0 +1,106 @@
+div.rsslink {
+	position:absolute;
+	top:40px;
+	left:60%;
+}
+
+div.social img {
+	margin-right:2px;
+}
+
+/* Weblog
+ */
+div.weblog {
+	margin-bottom:30px;
+}
+
+div.weblog div.weblog-header {
+	border-bottom:1px solid #c0c0c0;
+	padding-bottom:5px;
+	margin-bottom:10px;
+}
+
+div.weblog div.weblog-header h2 {
+	margin:0;
+}
+div.weblog div.weblog-header h2 a {
+	color:inherit;
+}
+
+div.weblog div.weblog-header div:nth-child(2) {
+	margin-top:7px;
+	text-align:right;
+}
+
+div.weblog div.weblog-body img {
+	max-width:100%;
+}
+
+@media (max-width:767px) {
+	div.weblog div.weblog-body img {
+		max-width:50%;
+	}
+}
+
+div.weblog-footer div.author {
+	text-align:right;
+}
+
+/* Tags
+ */
+div.tags {
+	font-size:11px;
+}
+
+div.tags span {
+	font-style:italic;
+}
+
+div.tags span:after {
+	content:",";
+	margin-right:3px;
+	font-style:normal;
+}
+
+div.tags span:last-child:after {
+	content:"";
+}
+
+/* Author and comments
+ */
+div.weblog div.author {
+	font-size:12px;
+}
+
+div.comment_count {
+	text-align:right;
+	font-size:12px;
+}
+
+div.comments div.panel-heading div:nth-child(2) {
+	text-align:right;
+	font-size:13px;
+}
+
+div.comments div.panel-body {
+	overflow:hidden;
+}
+
+textarea.form-control {
+	max-width:none;
+	height:150px;
+}
+
+/* Sidebar
+ */
+div.sidebar ul {
+	list-style:square inside;
+	padding:0;
+}
+
+@media (max-width:991px) {
+	div.sidebar ul li {
+		display:inline-block;
+		width:150px;
+	}
+}

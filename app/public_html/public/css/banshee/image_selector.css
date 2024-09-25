@@ -1,0 +1,20 @@
+div.images h3 {
+	clear:both;
+	border-bottom:1px solid #808080;
+}
+
+div.images div.image {
+	cursor:pointer;
+	width:100px;
+	height:100px;
+	float:left;
+	margin:15px;
+}
+
+div.images div.image:hover {
+	background-color:#f8f8f8;
+}
+
+div.images img {
+	max-width:100%;
+}

@@ -1,0 +1,33 @@
+span.currency {
+	margin-right:2px;
+}
+
+table.table td:nth-child(3) {
+	width:120px;
+	text-align:right;
+	padding-right:30px;
+}
+
+table.table td:nth-child(4) {
+	width:50px;
+	text-align:right;
+}
+
+table.table td:nth-child(5) {
+	width:90px;
+}
+
+table.table tfoot td {
+	font-weight:bold;
+}
+
+form {
+	display:inline-block;
+	margin-left:10px;
+}
+
+form input.btn {
+	padding:0;
+	width:25px;
+	margin-left:5px;
+}

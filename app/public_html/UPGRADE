@@ -1,0 +1,22 @@
+Upgrading
+=========
+
+Before you start building a website with Banshee, you must understand how to
+upgrade it to the next release. Banshee is a framework, with ready to use
+modules. Those modules are MVC modules and its files are located in the
+directories controllers, models and views. Most modules also have a stylesheet,
+which is located in public/css. Optionally, a module can have a javascript,
+which is located in public/js.
+
+The framework part of Banshee can be found in libraries/banshee. You are
+advised not to change those files. Banshee also uses other libraries from the
+libraries directory. Only change those libraries if you know what you're doing
+and document your changes.
+
+Before upgrading your website, make a backup. To upgrade your Banshee-based
+website to a new version, install a new version of Banshee and copy your
+modules to that new Banshee installation. You can use the import function of
+the module and layout scripts for that. Use the /setup page to update the
+database.
+
+Download the latest release at https://gitlab.com/hsleisink/banshee/.

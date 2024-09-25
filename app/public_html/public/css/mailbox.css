@@ -1,0 +1,35 @@
+@media (min-width:767px) {
+	ul.folders li {
+		float:none;
+	}
+}
+
+table.mailbox th.subject {
+	width:35%;
+}
+
+table.mailbox th.date {
+	width:150px;
+}
+
+table.mailbox td:nth-child(1) {
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+	max-width:0;
+}
+
+table.mailbox tr.unread td {
+	font-weight:bold;
+	color:#6b6bd0;
+}
+
+table.mailheader td:first-child {
+	width:80px;
+	font-weight:bold;
+}
+
+textarea.form-control {
+	max-width:none;
+	height:150px;
+}

@@ -1,0 +1,31 @@
+#!/bin/bash
+
+cd `dirname $0`/..
+
+echo "Downloading latest version of TCPDF."
+git clone https://github.com/tecnickcom/TCPDF
+
+if [ ! -d TCPDF ]; then
+	echo "Download error."
+	exit
+fi
+
+echo "Installing TCPDF."
+mkdir libraries/tcpdf
+cat TCPDF/tcpdf.php | sed "s/require_once(dirname(__FILE__).'.*\//require_once(dirname(__FILE__).'\/tcpdf\//" > libraries/tcpdf.php
+cp -f TCPDF/tcpdf_barcodes*.php libraries/tcpdf
+cp -f TCPDF/tcpdf_autoconfig.php libraries/tcpdf
+cp -f TCPDF/include/*.php libraries/tcpdf
+chmod 644 libraries/tcpdf/*
+
+echo "Installing fonts."
+mkdir -p extra/tcpdf_fonts
+cp TCPDF/fonts/courier*.php extra/tcpdf_fonts
+cp TCPDF/fonts/helvetica*.php extra/tcpdf_fonts
+cp TCPDF/fonts/symbol.php extra/tcpdf_fonts
+cp TCPDF/fonts/times*.php extra/tcpdf_fonts
+cp TCPDF/fonts/zapfdingbats.php extra/tcpdf_fonts
+chmod 644 extra/tcpdf_fonts/*
+
+echo "Cleaning up."
+rm -rf TCPDF

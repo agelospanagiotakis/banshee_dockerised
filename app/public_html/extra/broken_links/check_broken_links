@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+	require __DIR__."/spider.php";
+	require __DIR__."/../../libraries/banshee/protocol/http.php";
+
+	error_reporting(E_ALL & ~E_NOTICE);
+
+	if (count($argv) <= 1) {
+		printf("Usage: %s http[s]://<hostname>/\n", $argv[0]);
+		exit;
+	}
+
+	$spider = new Spider($argv[1]);
+	$spider->crawl();
+?>

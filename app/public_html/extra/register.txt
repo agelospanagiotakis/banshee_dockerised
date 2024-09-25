@@ -1,0 +1,8 @@
+<html>
+<body>
+<p>Hello,</p>
+<p>You are in the process of requesting an account at the [WEBSITE] website. You need the following code to proceed:</p>
+<pre>[CODE]</pre>
+<p>Kind regards,<br>the webmaster</p>
+</body>
+</html>

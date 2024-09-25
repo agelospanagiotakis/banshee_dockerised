@@ -1,0 +1,41 @@
+div.input-group {
+	max-width:none;
+}
+
+input.form-control {
+	max-width:none;
+}
+
+div.sections {
+	margin-top:5px;
+}
+
+div.sections span {
+	margin-right:20px;
+	white-space:nowrap;
+	display:inline-block;
+}
+
+div.sections span input {
+	margin-right:5px;
+	position:relative;
+	top:1px;
+}
+
+h2 {
+	border-bottom:1px solid #e0e0e0;
+}
+
+ul.pagination {
+	list-style:none;
+	margin-left:0;
+}
+
+div.preview {
+	margin-left:15px;
+}
+
+div.error {
+	color:#ff0000;
+	margin-top:10px;
+}

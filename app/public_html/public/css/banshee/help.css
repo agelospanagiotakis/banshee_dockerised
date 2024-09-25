@@ -1,0 +1,13 @@
+button.help {
+	float:right;
+}
+
+img.title_icon + button.help {
+	margin-right:20px;
+}
+
+@media (max-width:767px) {
+	button.help {
+		margin-top:10px;
+	}
+}

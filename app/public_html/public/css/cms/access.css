@@ -1,0 +1,42 @@
+table.table th:nth-child(n+2) {
+	max-width:40px;
+}
+
+table.table thead {
+	height:100px;
+}
+
+@media (min-width:768px) {
+	table.table th:nth-child(n+2) span {
+		display:block;
+		width:100px;
+		transform:rotate(-60deg);
+		transform-origin:bottom left;
+		white-space:nowrap;
+		overflow:hidden;
+		text-overflow:ellipsis;
+		position:relative;
+		left:15px;
+	}
+
+	table.table th {
+		width:120px;
+	}
+
+	table.table th:first-child {
+		width:150px;
+		min-width:150px;
+	}
+
+	table.table th:last-child {
+		width:auto;
+	}
+}
+
+span.glyphicon-ok {
+	color:green;
+}
+
+span.glyphicon-remove {
+	color:red;
+}

@@ -1,0 +1,37 @@
+h2 {
+	border-bottom:1px solid #808080;
+}
+
+h2 button {
+	float:right;
+}
+
+div.pages {
+	display:none;
+}
+
+div.pages div.page {
+	border:1px solid #c0c0c0;
+	background-color:#f0f0f0;
+	border-radius:10px;
+	padding:15px;
+	margin-bottom:25px;
+	cursor:pointer;
+}
+
+div.pages div.page div:first-child {
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+}
+
+div.pages div.page div:last-child {
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+}
+
+div.pages div.page div:nth-child(2) {
+	color:#808080;
+	font-style:italic;
+}

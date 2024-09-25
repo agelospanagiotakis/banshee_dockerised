@@ -1,0 +1,27 @@
+input[type=checkbox],
+input[type=radio] {
+	margin-right:15px;
+	cursor:pointer;
+}
+
+table.questionnaires tr {
+	cursor:pointer;
+}
+
+table.answers th:first-child {
+	width:50%;
+}
+
+span.required {
+	color:#ff0000;
+}
+
+label span.required {
+	padding-left:5px;
+}
+
+hr {
+	border:none;
+	background-color:#ff7900;
+	height:1px;
+}

@@ -1,0 +1,102 @@
+#!/usr/bin/php
+<?php
+	chdir(__DIR__);
+	require "../libraries/banshee/core/banshee.php";
+
+	$keep_table_data = array("agenda", "collection_album", "collections", "dictionary", "dummy", "faq_sections",
+		"faqs", "flags", "forum_messages", "forum_topics", "forums", "guestbook", "languages", "link_categories",
+		"links", "menu", "news", "page_access", "pages", "photo_albums", "photos", "poll_answers", "polls",
+		"questionnaire_answers", "questionnaires", "reroute", "roles", "settings", "shop_articles", "shop_categories",
+		"shop_order_article", "shop_orders", "subscriptions", "user_role", "weblog_comments", "weblog_tagged",
+		"weblog_tags", "weblogs");
+
+	$replace_table_data = array(
+		"organisations" => "1,'My organisation',NULL",
+		"user_role"     => "1,1",
+		"users"         => "1,1,'admin','none',NULL,NULL,2,NULL,'Administrator','root@localhost','','Banshee rulez!',NULL,NULL,NULL");
+
+	$remove_tables = array();
+
+	$change_settings = array(
+		"database_version"    => BANSHEE_VERSION,
+		"secret_website_code" => "",
+		"newsletter_email"    => "root@localhost",
+		"webmaster_email"     => "root@localhost");
+
+	system("./backup_database");
+
+	$day = strtolower(date("D"));
+
+	if (($fp = gzopen(DB_DATABASE."-".$day.".sql.gz", "r")) == false) {
+		print "Can't read database file.\n";
+		exit;
+	}
+
+	$keep_table_data = array_merge($keep_table_data, array_keys($replace_table_data));
+
+	$skip_line = false;
+	$output = array();
+
+	while (($line = gzgets($fp)) !== false) {
+		if (substr($line, 0, 15) == "-- Dumping data") {
+			list(, $table) = explode("`", $line, 3);
+
+			if (in_array($table, $keep_table_data) == false) {
+				$skip_line = true;
+			}
+		} else if (substr($line, 0, 11) == "INSERT INTO") {
+			list(, $table) = explode("`", $line, 3);
+
+			if (in_array($table, array_keys($replace_table_data))) {
+				list($first) = explode("(", $line, 2);
+				$line = $first."(".$replace_table_data[$table].");\n";
+				unset($replace_table_data[$table]);
+			} else if ($table == "settings") {
+				$line = rtrim($line, ");\n");
+				list($first, $line) = explode("(", $line, 2);
+				$settings = explode("),(", $line);
+				foreach ($settings as $i => $setting) {
+					list($id, $key, $type, $value) = explode(",", $setting, 4);
+
+					$skey = trim($key, "'");
+					if (isset($change_settings[$skey])) {
+						$value = "'".$change_settings[$skey]."'";
+					}
+
+					$settings[$i] = implode(",", array($id, $key, $type, $value));
+				}
+				$line = $first."(".implode("),(", $settings).");\n";
+			}
+		} else if (substr($line, 0, 18) == "-- Table structure") {
+			list(, $table) = explode("`", $line, 3);
+
+			$skip_line = in_array($table, $remove_tables);
+		} else if (substr($line, 0, 2) == "/*") {
+			$parts = explode(" ", $line);
+			if (($parts[1] == "SET") && (substr($parts[2], 0, 9) == "TIME_ZONE")) {
+				$skip_line = false;
+
+				if ($output[count($output) - 1] == "--\n") {
+					array_pop($output);
+				}
+			}
+		}
+
+		if ($skip_line == false) {
+			array_push($output, $line);
+		}
+	}
+
+	gzclose($fp);
+
+	if (($fp = fopen("mysql.sql", "w")) == false) {
+		print "Can't write mysql.sql.\n";
+		exit;
+	}
+
+	foreach ($output as $line) {
+		fputs($fp, $line);
+	}
+
+	fclose($fp);
+?>

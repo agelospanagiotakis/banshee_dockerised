@@ -1,0 +1,49 @@
+table.table th:nth-child(2),
+table.table th:nth-child(3) {
+	width:100px;
+}
+
+textarea#form {
+	max-width:none;
+	height:300px;
+	resize:vertical;
+}
+
+textarea#intro,
+textarea#after {
+	max-width:none;
+	height:100px;
+	resize:vertical;
+}
+
+button.open {
+	display:block;
+	float:right;
+	margin-top:-33px;
+}
+
+div.scroll {
+	max-height:200px;
+	overflow-y:auto;
+	padding-right:15px;
+}
+
+div.well {
+	white-space:pre-line;
+}
+
+form.filter div.question {
+	padding-top:6px;
+	padding-bottom:5px;
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+}
+
+form.filter div.panel-heading {
+	cursor:pointer;
+}
+
+textarea:read-only {
+	cursor:not-allowed;
+}

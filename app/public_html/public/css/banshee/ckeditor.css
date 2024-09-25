@@ -1,0 +1,26 @@
+.ck-editor__editable_inline {
+	min-height:400px;
+	max-height:600px;
+}
+
+.ck-source-editing-area {
+	height:400px;
+}
+
+.ck-editor__main .ck-source-editing-area textarea {
+	overflow:auto;
+}
+
+#editor-counters {
+	margin-bottom:5px;
+	background-color:#fafafa;
+	border-left:1px solid #c4c4c4;
+	border-bottom:1px solid #c4c4c4;
+	border-right:1px solid #c4c4c4;
+	text-align:right;
+}
+
+#editor-counters div div {
+	display:inline-block;
+	margin-right:15px;
+}

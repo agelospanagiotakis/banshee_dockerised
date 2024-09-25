@@ -1,0 +1,7 @@
+form {
+	margin-bottom:15px;
+}
+
+input#username {
+	text-transform:lowercase;
+}

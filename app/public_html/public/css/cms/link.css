@@ -1,0 +1,6 @@
+@media (max-width:767px) {
+	table th:nth-child(3),
+	table td:nth-child(3) {
+		display:none;
+	}
+}

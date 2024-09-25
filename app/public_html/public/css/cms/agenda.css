@@ -1,0 +1,7 @@
+table.table th:nth-child(n+2) {
+	width:25%;
+}
+
+textarea.form-control {
+	height:250px;
+}

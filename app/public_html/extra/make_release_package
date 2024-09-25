@@ -1,0 +1,100 @@
+#!/bin/bash
+
+cd `dirname $0`/..
+
+if [ ! -f ChangeLog ]; then
+	echo Cannot extract information from ChangeLog, as it does not exist.
+	exit
+fi
+
+version=`head -n1 ChangeLog | cut -f2 -d'(' | cut -f1 -d')'`
+
+# Checks
+./security_audit > /dev/null
+if [ $? = 1 ]; then
+	./security_audit
+	exit
+fi
+
+swc=`grep secret_website_code database/mysql.sql | sed -e 's/),(/\n/g' | grep secret_website_code | cut -f6 -d"'"`
+if [ "${swc}" != "" ]; then
+	echo "Remove the secret_website_code from database/mysql.sql."
+	exit
+fi
+
+dv=`grep database_version database/mysql.sql | sed -e 's/),(/\n/g' | grep database_version | cut -f6 -d"'"`
+if [ ${dv} != ${version} ]; then
+	echo "The database version in database/mysql.sql doesn't match the code version."
+	exit
+fi
+
+sv=`grep 'database_version = ' models/setup.php | tail -1 | cut -f2 -d'=' | sed 's/ //g' | cut -f1 -d';'`
+if [ ${sv} != ${version} ]; then
+	echo "The setup model doesn't upgrade the database to the lastest version."
+	exit
+fi
+
+# Copy for release
+dir=`pwd`
+target=`basename ${dir}`
+
+cd ..
+if [ -d ${target}-${version} ]; then
+	echo The directory ${target}-${version} already exists. Remove it first.
+	exit
+fi
+
+cp -r ${target} ${target}-${version}
+cd ${target}-${version}
+
+# Empty logfiles
+for logfile in `ls logfiles/*.log`; do
+	if [ -f ${logfile} ]; then
+		chmod 646 ${logfile}
+		echo -n "" > ${logfile}
+	fi
+done
+
+# Enable setup module
+cat settings/public_modules.conf | sed 's/#setup/setup/' > modules.conf
+mv modules.conf settings/public_modules.conf
+
+# Change settings
+function change_setting {
+	cat settings/${1}.conf | sed "s/${2}.*/${2} = ${3}/" > /tmp/${1}.conf
+	mv /tmp/${1}.conf settings/${1}.conf
+}
+
+change_setting banshee DB_HOSTNAME localhost
+change_setting banshee DB_DATABASE banshee
+change_setting banshee DB_USERNAME banshee
+change_setting banshee DB_PASSWORD banshee
+change_setting banshee DEBUG_MODE yes
+change_setting banshee USE_CKEDITOR yes
+change_setting banshee WEBSITE_ONLINE 127.0.0.1
+
+# Remove private code
+for file in `find -type f | grep '\.php$'`; do
+	sed '/\/\* PUBLISH DELETE BEGIN \*\//,/\/\* PUBLISH DELETE END \*\//d' ${file} > result
+	mv result ${file}
+done
+
+for file in `find public/css -type f | grep '\.css$'`; do
+	sed '/\/\* PUBLISH DELETE BEGIN \*\//,/\/\* PUBLISH DELETE END \*\//d' ${file} > result
+	mv result ${file}
+done
+
+for file in `find views -type f`; do
+	sed '/<!-- PUBLISH DELETE BEGIN -->/,/<!-- PUBLISH DELETE END -->/d' ${file} > result
+	mv result ${file}
+done
+
+# Remove files
+rm -f database/*.gz
+rm -f logfiles/*.gz
+
+# Make package
+cd ..
+tar -czf ${target}-${version}.tar.gz ${target}-${version}
+rm -rf ${target}-${version}
+echo "../${target}-${version}.tar.gz created."

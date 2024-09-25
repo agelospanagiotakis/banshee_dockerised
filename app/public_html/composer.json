@@ -1,0 +1,19 @@
+{
+	"name": "hsleisink/banshee",
+	"description": "The Banshee PHP Content Management Framework",
+	"homepage": "https://gitlab.com/hsleisink/banshee",
+	"license": "MIT",
+	"type": "project",
+	"require": {
+		"php": ">=7.2.0"
+	},
+	"authors": [
+		{
+			"name": "Hugo Leisink",
+			"email": "hugo@leisink.net"
+		}
+	],
+	"config": {
+		"vendor-dir": "libraries/composer"
+	}
+}

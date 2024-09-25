@@ -1,0 +1,483 @@
+#!/usr/bin/env php
+<?php
+	/* Copyright (C) by Hugo Leisink <hugo@leisink.net>
+	 * This file is part of the Banshee PHP framework
+	 * https://gitlab.com/hsleisink/banshee/
+	 *
+	 * Licensed under The MIT License
+	 */
+
+	chdir(__DIR__);
+	require "libraries/banshee/core/banshee.php";
+
+	$written_for = "8.0";
+
+	/* Auditor class
+	 */
+	abstract class auditor {
+		protected $extension = null;
+		protected $sub_directories = array(".");
+		private $current_directory = null;
+		private $dp = false;
+		protected $verified = array();
+		private $exclude = array("./public", "./templates");
+
+		/* Destructor
+		 *
+		 * INPUT:  -
+		 * OUTPUT: -
+		 * ERROR:  -
+		 */
+		public function __destruct() {
+			if ($this->dp !== false) {
+				closedir($this->dp);
+			}
+		}
+
+		/* Next file
+		 *
+		 * INPUT:  -
+		 * OUTPUT: string filename
+		 * ERROR:  false
+		 */
+		protected function next_file() {
+			$file = false;
+
+			do {
+				if ($this->dp == false) {
+					if (count($this->sub_directories) == 0) {
+						return false;
+					}
+					$this->current_directory = array_shift($this->sub_directories);
+					$this->dp = opendir($this->current_directory);
+
+					continue;
+				}
+
+				if (($file = readdir($this->dp)) == false) {
+					closedir($this->dp);
+					$this->dp = false;
+					continue;
+				}
+
+				if ($file[0] == ".") {
+					$file = false;
+					continue;
+				}
+
+				$file = $this->current_directory."/".$file;
+				if (is_dir($file)) {
+					foreach ($this->exclude as $exclude) {
+						if (substr($file, 0, strlen($exclude)) == $exclude) {
+							$file = false;
+							continue 2;
+						}
+					}
+					array_push($this->sub_directories, $file);
+					$file = false;
+					continue;
+				}
+
+				if ($this->extension !== null) {
+					$info = pathinfo($file);
+					if (($info["extension"] ?? null) != $this->extension) {
+						$file = false;
+						continue;
+					}
+				}
+			} while ($file === false);
+
+			if (substr($file, 0, 2) == "./") {
+				$file = substr($file, 2);
+			}
+
+			return $file;
+		}
+
+		/* Scan file dummy function
+		 *
+		 * INPUT:  string line
+		 * OUTPUT: -
+		 * ERROR:  -
+		 */
+		protected function scan_line($line) {
+		}
+
+		/* Scan file
+		 *
+		 * INPUT:  string filename
+		 * OUTPUT: bool issue found
+		 * ERROR:  -
+		 */
+		protected function scan_file($file) {
+			$lines = file($file);
+
+			$results = array();
+			foreach ($lines as $number => $line) {
+				$number++;
+				$line = trim($line);
+
+				if (substr($file, 0, 8) == "banshee/") {
+					$index = substr($file, 8);
+				} else {
+					$index = $file;
+				}
+
+				if (is_array($this->verified[$index] ?? null)) {
+					if (in_array($number, $this->verified[$index])) {
+						continue;
+					}
+				}
+
+				if (trim($line) == "") {
+					continue;
+				} else if (($line[0] == "#") || (substr($line, 0, 2) == "//")) {
+					continue;
+				}
+
+				ob_start();
+
+				$this->scan_line(strtolower($line));
+
+				if (($output = ob_get_clean()) == "") {
+					continue;
+				}
+
+				$output = explode("\n", trim($output));
+				foreach ($output as $line) {
+					array_push($results, $number.": ".$line);
+				}
+			}
+
+			$total = 0;
+			if (($count = count($results)) > 0) {
+				$total += $count;
+
+				print "  ".$file.":\n";
+				foreach ($results as $line) {
+					print "    ".$line."\n";
+				}
+
+				return true;
+			}
+
+			return false;
+		}
+
+		/* Perform audit
+		 *
+		 * INPUT:  -
+		 * OUTPUT: -
+		 * ERROR:  -
+		 */
+		public function perform_audit() {
+			$total = 0;
+
+			while (($file = $this->next_file()) != false) {
+				if ($this->scan_file($file)) {
+					$total++;
+				}
+			}
+
+			if ($total == 0) {
+				print "  no issues found\n";
+
+				return true;
+			}
+
+			return false;
+		}
+	}
+
+	/* Database auditing
+	 */
+	class database_auditor extends auditor {
+		protected $extension = "php";
+		private $variables = array();
+		private $continue_var = null;
+		protected $verified = array(
+			"libraries/banshee/database/mysqli_connection.php"     => array(40),
+			"libraries/banshee/database/postgresql_connection.php" => array(48),
+			"libraries/banshee/core/user.php"                      => array(282, 291),
+			"libraries/banshee/core/security.php"                  => array(182, 251),
+			"libraries/banshee/tablemanager_controller.php"        => array(233),
+			"libraries/banshee/tablemanager_model.php"             => array(294),
+			"models/cms/link.php"                                  => array(46),
+			"models/cms/photo.php"                                 => array(196),
+			"models/cms/settings.php"                              => array(70, 93),
+			"models/cms/user.php"                                  => array(39, 71),
+			"models/cms/webshop/article.php"                       => array(48),
+			"models/search.php"                                    => array(166),
+			"models/setup.php"                                     => array(135, 185),
+			"models/webshop/cart.php"                              => array(21));
+
+		protected function scan_line($line) {
+			/* PHP database query function calls
+			 */
+			$forbidden = array("mysql_query", "mysqli_query", "pg_query", "sqlite_query", "mssql_query");
+			foreach ($forbidden as $function) {
+				if (preg_match('/'.$function.' *\(/', $line) == 1) {
+					print $function."() detected\n";
+				}
+			}
+
+			/* Variable content continues from previous line
+			 */
+			if ($this->continue_var !== null) {
+				$this->variables[$this->continue_var] .= $line;
+
+				if (substr(rtrim($line), -1) != ".") {
+					$this->continue_var = null;
+				}
+
+				return;
+			}
+
+			/* Variable declaration
+			 */
+			if (preg_match('/^\s*\$[A-Za-z0-9_]*\s*=/', $line) == 1) {
+				list($key, $value) = explode("=", $line, 2);
+				$key = substr(trim($key), 1);
+				$this->variables[$key] = trim($value);
+
+				if (substr(rtrim($value), -1) == ".") {
+					$this->continue_var = $key;
+				}
+
+				return;
+			}
+
+			if (preg_match('/^\s*\$[A-Za-z0-9_]*\s*\.=/', $line) == 1) {
+				list($key, $value) = explode("=", $line, 2);
+				$key = substr(trim($key, " ."), 1);
+				$this->variables[$key] = ($this->variables[$key] ?? "") .trim($value);
+
+				if (substr(rtrim($value), -1) == ".") {
+					$this->continue_var = $key;
+				}
+
+				return;
+			}
+
+			/* Variables included in database query string
+			 */
+			$pos = false;
+			if (($pos = strpos($line, "db->query(")) !== false) {
+				$pos += 10;
+			} else if (($pos = strpos($line, "db->execute(")) !== false) {
+				$pos += 12;
+			}
+			if ($pos !== false) {
+				$str = substr($line, $pos);
+
+				$open = 0;
+				for ($i = 0; $i < strlen($line); $i++) {
+					if ($str[$i] == "(") {
+						$open++;
+					} else if ($str[$i] == ")") {
+						if ($open == 0) {
+							$str = substr($str, 0, $i);
+							break;
+						}
+						$open--;
+					}
+				}
+
+				if ($str[0] == '"') {
+					/* Query string is text
+					 */
+					foreach ($this->variables as $key => $value) {
+						if (preg_match('/\.\s*\$'.$key.'/', $str) == 1) {
+							print "include in query string\n";
+							break;
+						}
+					}
+
+					$str = str_replace('\"', "'", $str);
+					list(, $str) = explode('"', $str);
+
+					foreach ($this->variables as $key => $value) {
+						if (strpos($str, "$".$key) !== false) {
+							print "include in query string\n";
+							break;
+						}
+					}
+				} else if ($str[0] == "$") {
+					/* Query string is variable
+					 */
+					list($str) = explode(",", $str);
+					foreach ($this->variables as $key => $value) {
+						if (strpos($str, "$".$key) !== false) {
+							if (strpos($value, "\$") !== false) {
+								print "include in query string\n";
+							}
+						}
+					}
+
+					$str = substr(trim($str), 1);
+					if (isset($this->variables[$str]) == false) {
+						print "unknown variable for query string: ".$str."\n";
+					}
+				} else {
+					/* Weird query string
+					 */
+					print "suspicious query string\n";
+				}
+			}
+		}
+	}
+
+	/* Output auditing
+	 */
+	class output_auditor extends auditor {
+		protected $extension = "xslt";
+		protected $verified = array(
+			"views/agenda.xslt"                    => array(34, 95),
+			"views/banshee/functions.xslt"         => array(19),
+			"views/banshee/page.xslt"              => array(21, 42),
+			"views/demos/ckeditor.xslt"            => array(31),
+			"views/cms/webshop/order.xslt"         => array(39, 88, 96),
+			"views/cms/webshop/article.xslt"       => array(44, 93),
+			"views/demos/googlemaps.xslt"          => array(14),
+			"views/demos/posting.xslt"             => array(19),
+			"views/dictionary.xslt"                => array(69),
+			"views/faq.xslt"                       => array(27),
+			"views/forum.xslt"                     => array(108,110),
+			"views/guestbook.xslt"                 => array(30),
+			"views/mailbox.xslt"                   => array(75),
+			"views/news.xslt"                      => array(29),
+			"views/questionnaire.xslt"             => array(59, 151, 160),
+			"views/weblog.xslt"                    => array(36, 71),
+			"views/webshop.xslt"                   => array(36, 60),
+			"views/webshop/checkout.xslt"          => array(86, 94),
+			"views/webshop/cart.xslt"              => array(34, 44),
+			"views/webshop/orders.xslt"            => array(49, 57));
+
+		protected function scan_line($line) {
+			if (strpos($line, "disable-output-escaping=\"yes\"") !== false) {
+				print "output escaping disabled\n";
+			}
+		}
+	}
+
+	class integrity_auditor {
+		private $files = array(
+			"libraries/banshee" => array(
+				"authenticator.php"   => "8109d958f6388bb0be019a384c57b54d4c6f68b5",
+				"controller.php"      => "aa2fbac78b2a52d9da2d99e8015c5f4bcb0fef59",
+				"model.php"           => "b4abcf28f8b103cef8e4b720312440b58d79fbfe",
+				"post_protection.php" => "fffb81ac58b0d6b9096d626c9f8da0a77786f639"),
+			"libraries/banshee/core" => array(
+				"banshee.php"         => "61dd74688a914f6520aac17a23e4cc70c05cfc47",
+				"error.php"           => "fd1192610cef58db1ef1e189ed9b02196b25ed83",
+				"page.php"            => "13bff9da18365e64aab1cc8357e8c02714797b3e",
+				"security.php"        => "6d2897e2621fb0396d81e27b670043060c28716e",
+				"session.php"         => "d719ec1a8b01dcfea7ba9fb942eaa4371aa4d357",
+				"settings.php"        => "e850d972c159d2aa8db19a7217bec8afec40149f",
+				"user.php"            => "982c9d2bbbe279941f1c332aaec9d2e3e78b00ab",
+				"view.php"            => "726c5b660279f2e5cc76e82a8de6963b172677f9",
+				"xml.php"             => "e944d0a6e33e7865f42573f08012848575d1b1eb"),
+			"libraries/banshee/database" => array(
+				"database_connection.php" => "d8406f106e4701ef8e85d3e3e37ecff6b37a7660",
+				"mysqli_connection.php"   => "bd0072d282cbce207146917dfdff4c45d3b97d77"),
+			"libraries/banshee/protocol" => array(
+				"email.php"           => "9350e9028f55069f0be8201c62db97dfd5eb92c4"),
+			"public" => array(
+				"index.php"           => "edbcdb2b70f6f5528f983ff8178e1ac2b5f5cf2b"));
+
+		public function perform_audit() {
+			$total = 0;
+
+			foreach ($this->files as $directory => $files) {
+				foreach ($files as $file => $hash) {
+					$file = $directory."/".$file;
+					if (sha1_file($file) != $hash) {
+						print "  The file ".$file." has been changed.\n";
+						$total++;
+					}
+				}
+			}
+
+			if ($total == 0) {
+				print "  no issues found\n";
+
+				return true;
+			}
+
+			return false;
+		}
+	}
+
+	/* Webroot auditing
+	 */
+	class webroot_auditor extends auditor {
+		protected $sub_directories = array("public");
+
+		public function scan_file($file) {
+			if ($file == "public/index.php") {
+				return false;
+			}
+
+			$parts = explode(".", $file);
+			$extension = array_pop($parts);
+			if ($extension == "php") {
+				print "  PHP script found in webroot: ".$file."\n";
+				return true;
+			}
+
+			return false;
+		}
+	}
+
+	/* Start security audit
+	 */
+	error_reporting(E_ALL & ~E_NOTICE);
+
+	print "Banshee Security Audit v".$written_for."\n\n";
+	print "  Note that the findings below are not necessarily a security issue. They\n";
+	print "  only require extra attention from the auditor. Also note that it's not\n";
+	print "  guaranteed that this tool will find all security issues.\n";
+	print "\n";
+
+	/* Check Banshee version
+	 */
+	if (defined("BANSHEE_VERSION") == false) {
+		exit("Fatal error: no Banshee installation was found.\n");
+	}
+	if (BANSHEE_VERSION != $written_for) {
+		print "==> Be advised! This script has been optimized for Banshee version ".$written_for.".\n";
+		print "    However, this website was built upon version ".BANSHEE_VERSION.".\n\n";
+	}
+
+	$result = true;
+
+	/* Database auditing
+	 */
+	print "Database usage audit results:\n";
+	$database = new database_auditor;
+	$result &= $database->perform_audit();
+	unset($database);
+
+	/* Output auditing
+	 */
+	print "Output escaping audit results:\n";
+	$output = new output_auditor;
+	$result &= $output->perform_audit();
+	unset($output);
+
+	/* File integrity auditing
+	 */
+	print "File integrity audit results:\n";
+	$integrity = new integrity_auditor;
+	$result &= $integrity->perform_audit();
+	unset($integrity);
+
+	/* PHP scripts in webroot auditing
+	 */
+	print "Webroot audit results:\n";
+	$webroot = new webroot_auditor;
+	$result &= $webroot->perform_audit();
+	unset($webroot);
+
+	exit($result ? 0 : 1);
+?>

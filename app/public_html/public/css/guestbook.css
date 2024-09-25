@@ -1,0 +1,8 @@
+div.panel-heading div.row div:nth-child(2) {
+	text-align:right;
+}
+
+textarea.form-control {
+	max-width:none;
+	height:150px;
+}

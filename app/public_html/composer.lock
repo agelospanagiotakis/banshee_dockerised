@@ -1,0 +1,63 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "ef22ede1a1da452e501cfb8b53cc7885",
+    "packages": [
+        {
+            "name": "cleantalk/php-antispam",
+            "version": "3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/CleanTalk/php-antispam.git",
+                "reference": "82dbb895ee6e81eb983bfbe8e8fee2f294a461e9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/CleanTalk/php-antispam/zipball/82dbb895ee6e81eb983bfbe8e8fee2f294a461e9",
+                "reference": "82dbb895ee6e81eb983bfbe8e8fee2f294a461e9",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "lib/cleantalk-php-patch.php"
+                ],
+                "psr-4": {
+                    "Cleantalk\\": "lib"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0"
+            ],
+            "description": "PHP API for antispam service cleantalk.org. Invisible protection from spam, no captches, no puzzles, no animals and no math.",
+            "homepage": "http://cleantalk.org",
+            "keywords": [
+                "anti-spam",
+                "antispam",
+                "api",
+                "spam"
+            ],
+            "support": {
+                "email": "welcome@cleantalk.org",
+                "issues": "https://github.com/CleanTalk/php-antispam/issues",
+                "source": "https://github.com/CleanTalk/php-antispam/tree/3.1"
+            },
+            "time": "2023-04-27T13:58:28+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {
+        "php": ">=7.2.0"
+    },
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
+}

@@ -1,0 +1,79 @@
+version: '2'
+services:
+  # php_fpm:
+  #   container_name: hiawatha_php
+  #   image: php:fpm-alpine
+  #   expose:
+  #    - "9000"
+  #   volumes:
+  #     - ./www/banshee/html/:/var/www/banshee/html:ro
+  #     - ./www/banshee/log/:/var/www/banshee/log:rw
+  #   tty: true
+  #   depends_on:
+  #     - mysql
+
+  php:
+    build: ./docker/php
+    # restart: unless-stopped
+    container_name: php
+    tty: true
+    ports:
+      - "9000:9000"
+    depends_on:
+      - mysql
+    networks:
+      - default
+    volumes:
+      - ./www/banshee/html/:/var/www/banshee/html:ro
+
+  hiawatha_web:
+    container_name: hiawatha_web
+    image: heri16/hiawatha:latest
+    links:
+      - php:php
+    environment:
+      - PHP_HOST=php
+      - PHP_FPM_PORT=9000
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - default
+    volumes:
+      - ./www/banshee/html/:/var/www/banshee/html:ro
+      - ./www/banshee/log/:/var/www/banshee/log:rw
+      - ./hiawatha/hosts.conf:/etc/hiawatha/hosts.conf:ro,Z
+      - ./hiawatha/bindings.conf:/etc/hiawatha/bindings.conf:ro,Z
+      - ./hiawatha/tls/banshee.pem:/etc/hiawatha/tls/banshee.pem:ro,Z
+  
+  mysql:
+    container_name: mysql
+    image: mysql:5
+    tty: true
+    networks:
+      - default
+    ports:
+      - "3306:3306"
+    volumes:
+      - "./mysql/mysql.cnf:/etc/mysql/conf.d/custom.cnf:ro"
+      - "./mysql/dbdata:/var/lib/mysql"
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-development}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-mysql}
+      MYSQL_USER: ${MYSQL_USER:-mysql}
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: phpmyadmin
+    tty: true
+    depends_on:
+      - mysql
+    ports:
+      - "8082:80"
+    networks:
+      - default
+    environment:
+      PMA_HOST: mysql
+      PMA_ARBITRARY: 1
+      PMA_PORT: 3306

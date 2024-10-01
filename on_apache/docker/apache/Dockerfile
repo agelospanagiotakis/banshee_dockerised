@@ -1,7 +1,7 @@
 FROM httpd:2.4-alpine
 
 ENV TZ=${TZ:-UTC}
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
 
 ENV APP_ROOT=/var/www/app
 ENV SERVER_NAME=localhost

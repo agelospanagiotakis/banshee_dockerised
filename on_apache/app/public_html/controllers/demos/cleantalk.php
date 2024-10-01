@@ -18,19 +18,28 @@
 			// print_r($vals);
 			// $CLEATALK_KEY = $vals[0]['CLEATALK_KEY'];
 			$code = "" ;
-			if (isset($_POST["code"])) {
+			$cleantalk_antispam = new CleantalkAntispam($CLEATALK_KEY, $code);
+			if ($_SERVER["REQUEST_METHOD"] == "POST") {
+				if (isset($_POST["code"])) {
 				$code  = $_POST["code"];
 			}
-			$cleantalk_antispam = new CleantalkAntispam($CLEATALK_KEY, $code);
 			$api_result = $cleantalk_antispam->handle();
+			// allow (0|1) - allow to publish or not, in other words spam or ham
+			// comment (string) - server comment for requests.
+			// id (string MD5 HEX hash) - unique request idenifier.
+			// errno (int) - error number. errno == 0 if requests successfull.
+			// errstr (string) - comment for error issue, errstr == null if requests successfull.
+			// account_status - 0 account disabled, 1 account enabled, -1 unknown status.
 			$anti_spam_front_end = $cleantalk_antispam->frontendScript();
-			if ($_SERVER["REQUEST_METHOD"] == "POST") {
-				// $valid = Banshee\captcha::valid_code();
-				$valid =  $api_result->allow == 1;
+			$valid =  $api_result->allow == 1;
 				// var_dump($api_result);
 				// die;
 			// print("from demos_cleantalk_controller \n" . $anti_spam_front_end);
 			$this->view->add_message("Valid code: %s.", show_boolean($valid));
+			}else{ 
+			$anti_spam_front_end = $cleantalk_antispam->frontendScript();
+				// $valid = Banshee\captcha::valid_code();
+				
 			}
 		}
 	}

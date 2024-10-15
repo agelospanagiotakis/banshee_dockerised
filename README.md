@@ -1,4 +1,4 @@
-# Banshee dockerised
+# Banshee CMS dockerised
 
 
 Dockerised Banshee Working on Apache webserver
